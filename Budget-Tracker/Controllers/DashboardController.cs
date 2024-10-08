@@ -47,9 +47,35 @@ namespace Budget_Tracker.Controllers
                     FormattedAmount = x.Sum(x => x.Amount).ToString("C0")
                 }).OrderByDescending(x => x.Amount).ToList();
 
+            //Spline Chart - Income vs Expense
 
+            //Income
+            List<SplineChartData> IncomeSummary = selectedTransactions.Where(i => i.Category.Type == "Income").
+                GroupBy(j => j.Date).Select(k => new SplineChartData()
+                {
+                    day = k.First().Date.ToString("dd-MMM"),
+                    income = k.Sum(l => l.Amount)
+                }).ToList();
+
+            //Expense
+            List<SplineChartData> ExpenseSummary = selectedTransactions.Where(i => i.Category.Type == "Expense").
+                GroupBy(j => j.Date).Select(k => new SplineChartData()
+                {
+                    day = k.First().Date.ToString("dd-MMM"),
+                    expense = k.Sum(l => l.Amount)
+                }).ToList();
+
+            //Combine Income and Expense
+            string[] last7Days = Enumerable.Range(0,7).Select(i => StartDate.AddDays(i).ToString("dd-MMM")).ToArray();
 
             return View();
+        }
+
+        public class SplineChartData
+        {
+            public string day;
+            public int income;
+            public int expense;
         }
     }
 }
